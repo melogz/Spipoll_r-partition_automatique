@@ -10,7 +10,7 @@ main_recuperation <- function(pwdfile,colonnes){
   return(df_final)
 }
 
-df_laea <-main_recuperation(pwdfile ="/data_entree/data_SPIPOLL/spipoll_20220706_formated.txt" , colonnes = c("id","nom_collection","lat","long","userId","flower_taxon_sc","date_de_session","heureDebut","vent","insect_taxon") )
-class(df_laea) 
+#df_laea <-main_recuperation(pwdfile ="/data_entree/data_SPIPOLL/spipoll_20220706_formated.txt" , colonnes = c("id","nom_collection","lat","long","userId","flower_taxon_sc","date_de_session","heureDebut","vent","insect_taxon") )
+#class(df_laea) 
 
 

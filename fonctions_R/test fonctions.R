@@ -1,11 +1,11 @@
 # Charger les packages nécessaires
 library(sf)
 library(raster)
-clc <- raster("/Volumes/LaCie/carto_MNHN/RSpatial/g250_clc12_V18_5.tif")
-depart_sf <- st_read("/Volumes/LaCie/carto_MNHN/Extraction/carte_ARA.shp")
+clc <- raster(paste0(getwd(),"/RSpatial/g250_clc12_V18_5.tif"))
+depart_sf <- st_read(paste0(getwd(),"/Extraction/carte_ARA.shp"))
 plot(depart_sf)
 # Générer des points aléatoires dans la zone d'étude
-points <- st_read("/Volumes/LaCie/carto_MNHN/Extraction/SPIPOLL_1_10000.shp")
+points <- st_read(paste0(getwd(),"/Extraction/SPIPOLL_1_10000.shp"))
 points_laea <- st_transform(points, crs = st_crs(clc))
 df <- data.frame(id = 1:916)
 sf_points <- st_sf(df, geometry = points_laea$geometry)
