@@ -3,7 +3,7 @@ library(rgdal)
 library(sf) 
 library(raster)
 library(tidyverse)
-setwd("/Users/lmanceron/Documents/cartographie")
+
 source ( paste0(getwd(),"/fonctions_R/main_creation_fond_carte.R"))
 
 

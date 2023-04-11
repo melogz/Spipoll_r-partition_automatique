@@ -1,5 +1,5 @@
 ### récupération des données ###
-setwd("/Users/lmanceron/Documents/cartographie")
+
 library(dplyr)
 
 

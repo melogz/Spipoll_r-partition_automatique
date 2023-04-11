@@ -1,5 +1,5 @@
 
-setwd("/Users/lmanceron/Documents/cartographie")
+
 source ( paste0(getwd(),"/fonctions_R/creation_fond_carte.R"))
 library(dplyr)
 

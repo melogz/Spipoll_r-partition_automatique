@@ -3,7 +3,7 @@ library(rgdal)
 library(sf) 
 library(raster)
 library(tidyverse)
-setwd("/Users/lmanceron/Documents/cartographie")
+
 
 recuperation2 <- function(filename){
   resultat <- read.table(paste0(getwd(),filename), sep=',',header =TRUE )
@@ -12,7 +12,10 @@ recuperation2 <- function(filename){
 
 
 transformation_sf <- function(df){
-  df_geo <- st_as_sf(df, coords = c("long", "lat")) %>%
+  df_geo<- df
+  df_geo$long2<-df$long
+  df_geo$lat2<-df$lat
+  df_geo <- st_as_sf(df_geo, coords = c("long2", "lat2")) %>%
     st_set_crs("+proj=longlat +datum=WGS84 +no_defs")
   clc <- raster(paste0(getwd(),"/RSpatial/g250_clc12_V18_5.tif"))
   df_final <- st_transform(df_geo, crs = st_crs(clc))
