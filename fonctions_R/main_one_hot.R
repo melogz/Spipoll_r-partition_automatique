@@ -11,4 +11,5 @@ main_one_hot<-function(pwd_carte_occupation_sol,df,colonnes){
   return(new_df_2)
 }
 
-sf_points_2 <- main_one_hot("/RSpatial/g250_clc12_V18_5.tif",sf_points,44)
+sf_points_2 <- main_one_hot("/RSpatial/g250_clc12_V18_5.tif",sf_collection,44)
+write.table(sf_points_2, file = paste0(getwd(),"/data_entree/data_SPIPOLL/point_collection_ARA_one_hot_clc.csv"),sep =';', row.names = FALSE)

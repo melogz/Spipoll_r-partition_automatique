@@ -256,12 +256,19 @@ plot(st_boundary(buffer_carre),add=TRUE)
 sf_points
 
 test_ligne <- slice(sf_points_2,1)
-test_calcul <- 0
-for (i in (1:44)){
-  if (test_ligne[[paste("colonne", i, sep = "")]] > 0){
-    test_calcul <- test_calcul + test_ligne[[paste("colonne", i, sep = "")]]
-  }
-} 
+
+sf_points_2[[12]][[2]]> 0
+
+for(k in (1:nrow(sf_points_2))){
+  test_calcul <- 0
+  for (i in (12:39)){
+    if (sf_points_2[[i]][[k]] > 0){
+      test_calcul <- test_calcul + sf_points_2[[i]][[k]]
+    }
+  } 
+  print(test_calcul)
+}
+ 
 print(test_calcul)
-test_ligne[[paste("colonne", 2, sep = "")]]
+test_ligne[[3]]
 length(names(test_ligne))

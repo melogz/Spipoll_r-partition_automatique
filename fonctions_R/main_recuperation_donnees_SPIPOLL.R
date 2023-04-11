@@ -5,7 +5,6 @@ library(dplyr)
 main_recuperation <- function(pwdfile,colonnes){
   df<- recuperation(pwdfile)
   df_filtre <-filtre(df,"df$protocole!=1","df$nb_validation==3")#pour rajouter d'autres conditions respecter la syntaxe df$condition
-  #df_filtre <- df_filtre[!duplicated(paste(df_filtre$lat,df_filtre$long,df_filtre$heureDebut)),]
   df_final <- subset(df_filtre,select = (colonnes))
   return(df_final)
 }
