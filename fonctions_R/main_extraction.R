@@ -28,6 +28,6 @@ result <-main_extraction(fichier_SPIPOLL,colonne_donnees = colonne_SPIPOLL , fic
 sf_collection <- result[[1]]
 sf_obs <- result[[2]]
 carte_filtre<- result[[3]]
-
+class(sf_collection2$geometry)
 #sf_points_2<-sf_points[!duplicated(paste(sf_points$lat,sf_points$long,sf_points$date_de_session)),]
 
