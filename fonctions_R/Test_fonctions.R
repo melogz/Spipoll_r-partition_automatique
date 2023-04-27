@@ -272,3 +272,10 @@ for(k in (1:nrow(sf_points_2))){
 print(test_calcul)
 test_ligne[[3]]
 length(names(test_ligne))
+
+
+tmin <- c(10,12,14,16,18,20,22,21,19,17,15,12)
+tmax <- tmin + 5
+prec <- c(0,2,10,30,80,160,80,20,40,60,20,0)
+class(prec)
+biovars(prec, tmin, tmax)
