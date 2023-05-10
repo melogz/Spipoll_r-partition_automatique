@@ -26,7 +26,6 @@ make_buffers_vector<- function(pwd_carte,localisation_points,pwd_carte_region,nu
   st_crs(buffers)==st_crs(st_region)
   compo_buffer = st_intersection(st_region,buffers)
   buffer <- compo_buffer[, c("CODE_12", "AREA_HA", "id")]
-  buffer$CODE_12 <- substr(buffer$CODE_12, start = 1, stop = 2)
   return (buffer)
 }
 
