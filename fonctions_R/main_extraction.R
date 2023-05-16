@@ -25,9 +25,9 @@ pwd_carte = ("/RSpatial/departements-20180101.shp")
 colonne_departement = c("Allier","Loire","Puy-de-Dôme","Cantal","Haute-Loire","Ardèche","Drôme","Isère","Savoie","Haute-Savoie","Ain","Rhone","Rhône" ,"Métropole de Lyon")
 Echantillon =5000
 result <-main_extraction(fichier_SPIPOLL,colonne_donnees = colonne_SPIPOLL , fichier_carte = pwd_carte, departements = colonne_departement, Echantillon)
-sf_collection2 <- result[[1]]
-sf_obs2 <- result[[2]]
-carte_filtre2<- result[[3]]
+sf_collection <- result[[1]]
+sf_obs <- result[[2]]
+carte_filtre<- result[[3]]
 class(sf_collection2$geometry)
 #sf_points_2<-sf_points[!duplicated(paste(sf_points$lat,sf_points$long,sf_points$date_de_session)),]
 

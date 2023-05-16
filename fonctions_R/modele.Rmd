@@ -1,0 +1,18 @@
+---
+title: "modele"
+output: html_document
+date: "2023-05-15"
+---
+
+```{r}
+library(e1071)
+library(randomForest)
+```
+```{r}
+index     <- 1:nrow(sf_collection)
+N         <- trunc(length(index)/3)
+testindex <- sample(index, N)
+testset   <- sf_collection[testindex,]
+trainset  <- sf_collection[-testindex,]
+```
+
