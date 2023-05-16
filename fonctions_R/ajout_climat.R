@@ -25,7 +25,7 @@ climate_data_2001_2010 <- extract_nc_value(first_year = 2001,
 
 # on le transforme en raster pour pouvoir localiser les points et extraire les valeurs d'interet 
 rbk_2001 = raster::brick("raster_mean_temp_2001_2010.grd")
-sf_point_climat <- st_transform(sf_collection_jj, crs = st_crs(rbk_2001))
+sf_point_climat <- st_transform(sf_climat, crs = st_crs(rbk_2001))
 st_crs(rbk_2001)== st_crs(sf_point_climat)
 
 # on récupère la moyenne de chaque année pour avoir le bon nombre de ligne

@@ -9,9 +9,12 @@ pre_traitement <- function(df_col, df_obs,nom_espece){
   df_donne <- test[,c("lat","long","heureDebut")]
   present <- df_col$lat %in% df_donne$lat & df_col$long %in% df_donne$long & df_col$heureDebut %in% df_donne$heureDebut
   df_col$presence[present] <- 1
+  return(df_col)
 }
 
+sf_point_climat_abeille <- pre_traitement(sf_point_climat,sf_obs,'L_Abeille mellifère (Apis mellifera)')
 
+write.table(sf_point_climat_abeille, file = paste0(getwd(),"/data_entree/data_SPIPOLL/point_collection_one_2000_abeille.csv"),sep =';', row.names = FALSE)
 #test <- subset(sf_obs, insect_taxon=='L_Abeille mellifère (Apis mellifera)')
 #df_donne <- test[,c("lat","long","heureDebut")]
 # Utiliser la fonction merge() pour récupérer les lignes en fonction des valeurs de A, B et C

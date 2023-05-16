@@ -4,7 +4,7 @@ library(sf)
 library(raster)
 library(tidyverse)
 getwd()
-setwd("/Users/lmanceron/Documents/carto_mnhn")
+setwd("/Volumes/LaCie/carto_MNHN")
 source ( paste0(getwd(),"/fonctions_R/main_ajout_point.R"))
 source ( paste0(getwd(),"/fonctions_R/main_creation_fond_carte.R"))
 source ( paste0(getwd(),"/fonctions_R/main_recuperation_donnees_SPIPOLL.R"))
@@ -23,7 +23,7 @@ colonne_SPIPOLL = c("id","nom_collection","lat","long","userId","flower_taxon_sc
 fichier_SPIPOLL = "/data_entree/data_SPIPOLL/spipoll_20220706_formated.txt"
 pwd_carte = ("/RSpatial/departements-20180101.shp")
 colonne_departement = c("Allier","Loire","Puy-de-Dôme","Cantal","Haute-Loire","Ardèche","Drôme","Isère","Savoie","Haute-Savoie","Ain","Rhone","Rhône" ,"Métropole de Lyon")
-Echantillon =5000
+Echantillon =500
 result <-main_extraction(fichier_SPIPOLL,colonne_donnees = colonne_SPIPOLL , fichier_carte = pwd_carte, departements = colonne_departement, Echantillon)
 sf_collection <- result[[1]]
 sf_obs <- result[[2]]

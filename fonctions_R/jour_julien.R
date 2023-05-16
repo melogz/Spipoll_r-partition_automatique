@@ -5,4 +5,4 @@ jour_julien <- function (df){
   return (df)
 }
 
-sf_collection_jj <- jour_julien(sf_collection)
+#sf_collection_jj <- jour_julien(sf_collection)

@@ -37,24 +37,24 @@ sous_buffers <- function(buffers,taille_buffer){
 }
 
 
-clc_raster <-"/RSpatial/g250_clc12_V18_5.tif"
-buffers_2000 <- make_buffers_raster(clc_raster,sf_collection2,2000)
+#clc_raster <-"/RSpatial/g250_clc12_V18_5.tif"
+#buffers_2000 <- make_buffers_raster(clc_raster,sf_collection,2000)
 
 
-clc_vector <-"/CLC12_FR_RGF_SHP/CLC12_FR_RGF.shp"
-region <- paste0(getwd(),"/carte_region/regions_2015_metropole_region.shp")
-buffers_2000_vector <- make_buffers_vector(clc_vector,sf_collection2,region,3,2000)
+#clc_vector <-"/CLC12_FR_RGF_SHP/CLC12_FR_RGF.shp"
+#region <- paste0(getwd(),"/carte_region/regions_2015_metropole_region.shp")
+#buffers_2000_vector <- make_buffers_vector(clc_vector,sf_collection2,region,3,2000)
 
-length(buffers_1000$geometry[[1]])
-length(buffers_1000$values[[1]])
-buf<- slice(buffers_1000,1)
-buffer <- buffers_2000_2[, c("CODE_12", "AREA_HA", "id")]
-st_bbox(slice(buffers,1))
-clc_carte <- raster(paste0(getwd(),clc_raster))
-clc_petit <- crop(clc_carte,# raster to crop
-                 extent(st_bbox(slice(buffers_1000,1))))
-plot(clc_petit)
-plot(buf,add=T)
-buf_vector<- slice(buffer,1)
+#length(buffers_1000$geometry[[1]])
+#length(buffers_1000$values[[1]])
+#buf<- slice(buffers_1000,1)
+#buffer <- buffers_2000_2[, c("CODE_12", "AREA_HA", "id")]
+#st_bbox(slice(buffers,1))
+#clc_carte <- raster(paste0(getwd(),clc_raster))
+#clc_petit <- crop(clc_carte,# raster to crop
+#                 extent(st_bbox(slice(buffers_1000,1))))
+#plot(clc_petit)
+#plot(buf,add=T)
+#buf_vector<- slice(buffer,1)
 
-substr(buf_vector$CODE_12, start = 1, stop = 2)
+#substr(buf_vector$CODE_12, start = 1, stop = 2)
