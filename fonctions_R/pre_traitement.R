@@ -12,7 +12,7 @@ pre_traitement <- function(df_col, df_obs,nom_espece){
   return(df_col)
 }
 
-sf_point_climat_abeille <- pre_traitement(sf_point_climat,sf_obs,'L_Abeille mellifère (Apis mellifera)')
+sf_point_climat_abeille <- pre_traitement(test,sf_obs,'L_Abeille mellifère (Apis mellifera)')
 
 write.table(sf_point_climat_abeille, file = paste0(getwd(),"/data_entree/data_SPIPOLL/point_collection_one_2000_abeille.csv"),sep =';', row.names = FALSE)
 #test <- subset(sf_obs, insect_taxon=='L_Abeille mellifère (Apis mellifera)')

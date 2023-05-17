@@ -25,7 +25,7 @@ new_one_hot <-  function(df,nombre_de_colonne,carte_buffers,taille_buffer ){
   df_1 <- cbind(df,new_df)
   for (i in (1:nrow(carte_buffers))){
     for (j in (1:length(unique(carte_buffers$values[[i]])))){
-      df_1[[paste("colonne", unique(buffers_test$values[[i]])[[j]],"_",taille_buffer, sep = "")]][i] = table(carte_buffers$values[[i]])[[j]]*100/length(carte_buffers$values[[i]])
+      df_1[[paste("colonne", unique(carte_buffers$values[[i]])[[j]],"_",taille_buffer, sep = "")]][i] = table(carte_buffers$values[[i]])[[j]]*100/length(carte_buffers$values[[i]])
     }
   }
   return(df_1)

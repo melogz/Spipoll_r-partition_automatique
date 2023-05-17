@@ -4,7 +4,7 @@ library(sf)
 library(raster)
 library(tidyverse)
 getwd()
-setwd("/Volumes/LaCie/carto_MNHN")
+setwd("/Users/lmanceron/Documents/carto_mnhn")
 source ( paste0(getwd(),"/fonctions_R/main_ajout_point.R"))
 source ( paste0(getwd(),"/fonctions_R/main_creation_fond_carte.R"))
 source ( paste0(getwd(),"/fonctions_R/main_recuperation_donnees_SPIPOLL.R"))
@@ -23,11 +23,14 @@ colonne_SPIPOLL = c("id","nom_collection","lat","long","userId","flower_taxon_sc
 fichier_SPIPOLL = "/data_entree/data_SPIPOLL/spipoll_20220706_formated.txt"
 pwd_carte = ("/RSpatial/departements-20180101.shp")
 colonne_departement = c("Allier","Loire","Puy-de-Dôme","Cantal","Haute-Loire","Ardèche","Drôme","Isère","Savoie","Haute-Savoie","Ain","Rhone","Rhône" ,"Métropole de Lyon")
-Echantillon =500
-result <-main_extraction(fichier_SPIPOLL,colonne_donnees = colonne_SPIPOLL , fichier_carte = pwd_carte, departements = colonne_departement, Echantillon)
+depart_sf<-st_read(paste0(getwd(),"/RSpatial/departements-20180101.shp"))
+toute_la_france=depart_sf$nom[!(depart_sf$nom %in% c(depart_sf$nom[depart_sf$code_insee>=970]))]
+Echantillon =2000
+result <-main_extraction(fichier_SPIPOLL,colonne_donnees = colonne_SPIPOLL , fichier_carte = pwd_carte, departements = toute_la_france, Echantillon)
 sf_collection <- result[[1]]
 sf_obs <- result[[2]]
 carte_filtre<- result[[3]]
 class(sf_collection2$geometry)
+test <- read.table(paste0(getwd(),"/data_entree/data_SPIPOLL/point_clc_climat_2000.csv"),sep=";",header= TRUE)
 #sf_points_2<-sf_points[!duplicated(paste(sf_points$lat,sf_points$long,sf_points$date_de_session)),]
 

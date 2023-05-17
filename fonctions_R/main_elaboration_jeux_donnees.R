@@ -21,5 +21,6 @@ clc_raster <-"/RSpatial/g250_clc12_V18_5.tif"
 region <- paste0(getwd(),"/carte_region/regions_2015_metropole_region.shp")
 
 sf_climat <- elaboration(sf_collection,clc_raster,44,2000,region,3)
+climat()
 sf_collection_test  <-jour_julien(sf_collection)
 sf_point_climat_test <- main_one_hot(clc_raster,sf_collection_test,44,2000,region,3)
