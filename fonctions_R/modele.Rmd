@@ -20,7 +20,7 @@ library(pROC)
 
 
 ```{r}
-setwd("D:/carto_mnhn")
+setwd("C:/Users/lmanceron/Documents/carto_mnhn")
 sf_point_climat_entrainement <- read.csv(paste0(getwd(),"/data_entree/data_SPIPOLL/point_collection_modele.csv"), sep =";")
 sf_obs <- read.csv(paste0(getwd(),"/data_entree/data_SPIPOLL/point_observation_100000.csv"),sep =";")
 ```
