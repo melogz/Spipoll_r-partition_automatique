@@ -16,3 +16,4 @@ main_creation_carte <- function(df,pwdcarte,colonne,titre_carte){
 }
 
 #carte_filtre <-main_creation_carte(df= df_laea, pwdcarte = "/RSpatial/departements-20180101.shp", colonne = c("Allier","Loire","Puy-de-Dôme","Cantal","Haute-Loire","Ardèche","Drôme","Isère","Savoie","Haute-Savoie","Ain","Rhone","Rhône" ,"Métropole de Lyon"), titre_carte =  "Auvergne-Rhone-Alpes" )
+#carte_filtre <- main_creation_carte(sf_collection,"/RSpatial/departements-20180101.shp",toute_la_france,"france")

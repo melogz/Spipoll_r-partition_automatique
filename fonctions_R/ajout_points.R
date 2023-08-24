@@ -11,7 +11,7 @@ source ( paste0(getwd(),"/fonctions_R/main_creation_fond_carte.R"))
 ajout_point<- function(fichier,carte,debut =1,fin = nrow(fichier),filename){
   carte_ARA<-st_union(carte)
   df_echan <- fichier[debut:fin,]
-  df_echan$presence <- st_within(df_echan,carte_ARA,sparse =F)
+  df_echan$presence <- st_intersects(df_echan,carte_ARA,sparse =F)
   df_presence<- subset(df_echan,(df_echan$presence ==TRUE))
   write.csv(df_presence, paste0(getwd(),filename), row.names = TRUE)
   return (df_presence)

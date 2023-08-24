@@ -10,8 +10,6 @@ main_ajout_point_collection<- function(fichier,carte,debut,fin){
   enregistrement = paste0("/data_entree/data_SPIPOLL/df_collection_", debut,"_",fin,".csv")
   df<- fichier
   df <- df[!duplicated(paste(df$lat,df$long,df$date_de_session)),]
-  point_sur_carte <- carte_a_point(df,carte,"collection")
-  plot(point_sur_carte)
   write.table(df, file = paste0(getwd(),enregistrement),sep =';', row.names = FALSE)
   return (df)
 }

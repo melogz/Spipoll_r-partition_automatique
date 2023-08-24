@@ -3,16 +3,628 @@ title: "modele"
 output: html_document
 date: "2023-05-15"
 ---
+```{r}
+install.packages('caret')
+install.packages('FactoMineR')
+```
 
 ```{r}
 library(e1071)
 library(randomForest)
+library(caret)
+library(ggplot2)
+library(FactoMineR)
+library(pROC)
+```
+
+
+
+```{r}
+setwd("D:/carto_mnhn")
+sf_point_climat_entrainement <- read.csv(paste0(getwd(),"/data_entree/data_SPIPOLL/point_collection_modele.csv"), sep =";")
+sf_obs <- read.csv(paste0(getwd(),"/data_entree/data_SPIPOLL/point_observation_100000.csv"),sep =";")
+```
+
+```{r}
+sf_obs$insect_taxon <- iconv(sf_obs$insect_taxon, from = "latin1", to = "UTF-8")
+sf_obs$flower_taxon_sc <- iconv(sf_obs$flower_taxon_sc, from = "latin1", to = "UTF-8")
+sf_point_climat_entrainement$insect_taxon <- iconv(sf_point_climat_entrainement$insect_taxon, from = "latin1", to = "UTF-8")
+sf_point_climat_entrainement$flower_taxon_sc <- iconv(sf_point_climat_entrainement$flower_taxon_sc, from = "latin1", to = "UTF-8")
+```
+
+
+```{r}
+df_flower <- as.data.frame(sf_point_climat_entrainement$flower_taxon_sc)
+names(df_flower)<-'flower_taxon'
+frequences_flower <- df_flower %>%
+  count(flower_taxon)
+
+frequence <- subset(frequences_flower, n> 100 )
+print(frequence)
+```
+
+
+
+
+```{r}
+ggplot(sf_obs, aes(x =  insect_taxon)) +
+  geom_bar() +
+  labs(x = "Variable", y = "Fréquence") +
+  ggtitle("Fréquence des différentes valeurs de la variable")
 ```
 ```{r}
-index     <- 1:nrow(sf_collection)
-N         <- trunc(length(index)/3)
-testindex <- sample(index, N)
-testset   <- sf_collection[testindex,]
-trainset  <- sf_collection[-testindex,]
+library(dplyr)
+library(ggplot2)
+
+# Calculer les fréquences
+freq <- sf_obs %>%
+  count(insect_taxon) %>%
+  arrange(desc(n))
+
+# Tracer le graphique avec les fréquences triées
+ggplot(freq, aes(x = reorder(insect_taxon, -n), y = n)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Variable", y = "Fréquence") +
+  ggtitle("Fréquence des différentes valeurs de la variable")
+
+
+```
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Calculer les fréquences
+freq <- subset_df %>%
+  count(famille) %>%
+  arrange(desc(n))
+
+# Tracer le graphique avec les fréquences triées
+ggplot(freq, aes(x = reorder(famille, -n), y = n)) +
+  geom_bar(stat = "identity") +
+  labs(x = "famille", y = "Occurences") +
+  ggtitle("Occurences des différentes familles de plantes")
+
+
+```
+
+
+```{r}
+library(dplyr)
+df_insect <- as.data.frame(sf_obs$insect_taxon)
+names(df_insect)<-'insect_taxon'
+frequences <- df_insect %>%
+  count(insect_taxon)
+
+#frequence <- subset(frequences, n> 100 )
+print(frequences)
+```
+
+```{r}
+library(dplyr)
+
+df_insect <- as.data.frame(sf_obs$insect_taxon)
+names(df_insect) <- 'insect_taxon'
+
+frequences <- df_insect %>%
+  count(insect_taxon) %>%
+  filter(n > 5000) %>%
+  arrange(desc(n))
+
+print(frequences)
+
+```
+
+```{r}
+library(dplyr)
+
+df_flower <- as.data.frame(subset_df$famille)
+names(df_flower) <- 'famille'
+
+frequences <- df_flower %>%
+  count(famille) %>%
+  arrange(desc(n))
+
+print(frequences)
+
+```
+
+```{r}
+
+library(dplyr)
+
+df_flower <- as.data.frame(sf_obs$flower_taxon_sc)
+names(df_flower) <- 'flower_taxon_sc'
+
+frequences <- df_flower %>%
+  count(flower_taxon_sc) %>%
+  filter(n < 10000) %>%
+  filter(n > 1000) %>%
+  arrange(desc(n))
+
+print(frequences)
+```
+
+
+
+
+
+```{r}
+nom_espece = "Le Syrphe ceinturé (Episyrphus balteatus)"
+sf_point_climat_espece <- pre_traitement(sf_point_climat_entrainement,sf_obs,nom_espece)
+```
+
+
+```{r}
+ggplot(sf_point_climat_espece, aes(x =  presence)) +
+  geom_bar() +
+  labs(x = "presence/absence", y = "Fréquence") +
+  ggtitle("Distribution de l'espece sur les sites")
+```
+
+```{r}
+
+# Convertir le dataframe en un objet sf (points)
+sf_points_test <- st_as_sf(sf_point_climat_espece[1:100,1:11], coords = c("long", "lat"))
+
+# Calculer la matrice de distance spatiale
+dist_matrix <- st_distance(sf_points_test)
+
+# Calculer l'autocorrélation spatiale globale
+moran_result <- moran.test(y = df$variable, listw = as(dist_matrix, "listw"))
+
+# Calculer l'autocorrélation spatiale locale
+lisa_result <- localmoran(y = df$variable, listw = as(dist_matrix, "listw"))
+
+# Visualiser les résultats
+plot(sf_points, col = "red")  # Afficher les points
+plot(lisa_result, col = lisa_result$Q, add = TRUE)  # Afficher les indices LISA
+
+```
+
+
+
+```{r}
+espece_presente <- subset(sf_point_climat_espece , presence == 1)
+espece_abscente <- subset(sf_point_climat_espece , presence == 0)
+conversion_rate <- nrow(espece_presente) / nrow(sf_point_climat_espece)
+print(conversion_rate)
+```
+
+```{r}
+nrow(espece_abscente)
+nrow(espece_presente)
+```
+
+
+```{r}
+train_index <- createDataPartition(y =sf_point_climat_espece$presence, p = 0.8, list=FALSE)
+indices_colonnes <- c(3,4,11:121)
+dataset <- sf_point_climat_espece[,indices_colonnes]
+dataset2 <- st_drop_geometry(dataset)
+testset   <- dataset2[-train_index,]
+trainset  <- dataset2[train_index,]
+```
+
+```{r}
+espece_presente <- subset(trainset , presence == 1)
+espece_abscente <- subset(trainset , presence == 0)
+conversion_rate <- nrow(espece_presente) / nrow(sf_point_climat_espece)
+print(conversion_rate)
+```
+
+```{r}
+nrow(espece_presente)
+length(sample(nrow(espece_abscente),nrow(espece_presente)))
+```
+
+
+```{r}
+#down-sampling
+final_espece_abscente <- espece_abscente[sample(nrow(espece_abscente),nrow(espece_presente)),]
+final_espece_presente_data <- rbind(espece_presente, final_espece_abscente)
+final_espece_presente_data <- final_espece_presente_data[sample(nrow(final_espece_presente_data)),]
+final_espece_presente_data <- st_drop_geometry(final_espece_presente_data)
+```
+ 
+```{r}
+espece_presente <- subset(final_espece_presente_data , presence == 1)
+espece_abscente <- subset(final_espece_presente_data , presence == 0)
+conversion_rate <- nrow(espece_presente) / nrow(final_espece_presente_data)
+print(conversion_rate)
+``` 
+ 
+```{r}
+xtrain <- as.data.frame(final_espece_presente_data[,-1])
+ytrain <- as.data.frame(final_espece_presente_data[,1])
+xtest <- as.data.frame(testset[,-1])
+ytest <- as.data.frame(testset[,1])
+names(ytest) <- 'presence'
+names(ytrain) <- 'presence'
+```
+
+
+
+```{r}
+rf.model <- randomForest(as.factor(final_espece_presente_data$presence)~.,data=(final_espece_presente_data))
+rf.pred <- predict(rf.model,xtest)
+predictions <- predict(rf.model,xtest, type = "prob")
+```
+
+
+```{r}
+
+roc_obj <- roc(ytest$presence, as.numeric(rf.pred))
+
+# Tracer la courbe ROC
+plot(roc_obj, main = "Courbe ROC", xlab = "Taux de faux positifs", ylab = "Taux de vrais positifs")
+
+# Calculer l'AUC
+auc_val <- auc(roc_obj)
+print(paste("AUC :", auc_val))
+
+```
+
+
+```{r}
+length(rf.pred)
+length(unlist(ytest$presence))
+```
+
+
+```{r}
+cm <- confusionMatrix(as.factor(rf.pred), as.factor(unlist(ytest$presence)))
+print(cm)
+``` 
+
+```{r}
+sf_point_climat_espece <- st_drop_geometry(sf_point_climat_espece)
+set.seed(1)
+train_index <- createDataPartition(y = sf_point_climat_espece$presence, p = 0.8, list=FALSE)
+indices_colonnes <- c(3,4,11:120,125:129)
+dataset <- sf_point_climat_espece[,indices_colonnes]
+testset   <- dataset[-train_index,]
+trainset  <- dataset[train_index,]
+```
+
+```{r}
+xtrain <- as.data.frame(trainset[,-3])
+ytrain <- as.data.frame(trainset[,3])
+xtest <- as.data.frame(testset[,-3])
+ytest <- as.data.frame(testset[,3])
+names(ytest) <- 'presence'
+names(ytrain) <- 'presence'
+```
+
+```{r}
+rf.model <- randomForest(as.factor(trainset$presence)~.,data=(trainset))
+rf.pred <- predict(rf.model,xtest)
+predictions <- predict(rf.model,xtest, type = "prob")
+```
+
+
+```{r}
+length(rf.pred)
+length(unlist(ytest$presence))
+```
+
+
+```{r}
+cm <- confusionMatrix(as.factor(rf.pred), as.factor(unlist(ytest$presence)))
+print(cm)
+```
+```{r}
+roc_obj <- roc(ytest$presence, as.numeric(rf.pred))
+
+# Tracer la courbe ROC
+plot(roc_obj, main = "Courbe ROC", xlab = "Taux de faux positifs", ylab = "Taux de vrais positifs")
+
+# Calculer l'AUC
+auc_val <- auc(roc_obj)
+print(paste("AUC :", auc_val))
+
+```
+
+```{r}
+set.seed(1)
+prNum <- as.numeric(table(trainset$presence)["1"]) # number of presence records
+spsize <- c("0" = prNum, "1" = prNum) # sample size for both classes
+
+# RF with down-sampling
+
+rf_dws <- randomForest(as.factor(trainset$presence) ~ .,
+                       data = trainset,
+                       ntree = 1000,
+                       sampsize = spsize,
+                       replace = TRUE) # make sure samples are with replacement (default)
+
+# predict to raster layers
+pred_dws <-  predict(rf_dws,xtest , type = "prob", index = 2)
+rf.pred_dws <- predict(rf_dws,xtest)
+```
+
+
+```{r}
+cm <- confusionMatrix(as.factor(rf.pred_dws), as.factor(unlist(ytest$presence)))
+print(cm)
+```
+```{r}
+
+roc_obj <- roc(ytest$presence, as.numeric(rf.pred_dws))
+
+# Tracer la courbe ROC
+plot(roc_obj, main = "Courbe ROC", xlab = "Taux de faux positifs", ylab = "Taux de vrais positifs")
+
+# Calculer l'AUC
+auc_val <- auc(roc_obj)
+print(paste("AUC :", auc_val))
+
+```
+
+## Elaboration des cartes de prédictions
+
+```{r}
+  sf_point_france$jour_julien <- 349
+  sf_point_france$mois <- 12
+  ensemble_test <- sf_point_france[,2:114]
+  ensemble_test <- st_drop_geometry(ensemble_test)
+  rf.predictions <- predict(rf_dws,ensemble_test,type = "prob")
+  buffers_france$presence_decembre <- rf.predictions[,2]
+```
+
+```{r}
+mi_mois<-c (15,46,74,105, 135,166,196,227,258,288,319,349) 
+
+```
+
+
+```{r}
+#predictions à l'echelle d'un département
+for (i in (1:12)){
+  sf_point_allier$jour_julien <- mi_mois[i]
+  sf_point_allier$mois <- i
+  ensemble_test <- sf_point_allier[,c(2,3,5:115)]
+  #ensemble_test <- sf_point_allier[,2:114]
+  ensemble_test <- st_drop_geometry(ensemble_test)
+  rf.predictions <- predict(rf_dws,ensemble_test,type = "prob")
+  buffers_allier[[i+7]] <- rf.predictions[,2]
+}
+
+```
+
+
+
+### ANALYSE STAT
+```{r}
+dataset_ACP <- sf_point_climat_entrainement[,12:125]
+dataset_ACP <-  st_drop_geometry(dataset_ACP)
+res.pca <- PCA(dataset_ACP[,2:11])
+```
+```{r}
+res.pca <- PCA(dataset_ACP[,47:56])
+```
+
+```{r}
+dataset_ACP <- dataset[,-3]
+dataset_ACP <-  st_drop_geometry(dataset_ACP)
+res.pca <- PCA(dataset_ACP[,94:112])
+```
+```{r}
+library(factoextra)
+fviz_pca_ind(res.pca, geom.ind = "point", pointshape = 16, pointsize = 2, label = "none")
+```
+```{r}
+library(scatterplot3d)
+
+# Extraire les scores des individus sur les trois premiers axes
+scores <- as.data.frame(res.pca$ind$coord[, c(1, 2, 3)])
+
+# Graphe d'individus en 3D
+scatterplot3d(scores$Dim.1, scores$Dim.2, scores$Dim.3, pch = 16, color = "blue",
+              xlab = "Axe 1", ylab = "Axe 2", zlab = "Axe 3")
+
+```
+```{r}
+sf_data_ACP <- st_drop_geometry(sf_france_climat)
+class(sf_data_ACP[,95])
+class(sf_point_climat_espece[,3])
+
+res_pca_data <- PCA(sf_data_ACP[,5:48])
+```
+```{r}
+res_pca_data <- PCA(sf_data_ACP[,49:91])
+```
+
+```{r}
+sf_data_ACP <- st_drop_geometry(sf_point_france)
+class(sf_data_ACP[,95])
+class(sf_point_climat_espece[,3])
+
+res_pca_data <- PCA(sf_data_ACP[,95:113])
+```
+```{r}
+fviz_pca_ind(res_pca_data, geom.ind = "point", pointshape = 16, pointsize = 2, label = "none")
+```
+
+```{r}
+# Extraire les scores des individus sur les trois premiers axes
+scores <- as.data.frame(res_pca_data$ind$coord[, c(1, 2, 3)])
+
+# Graphe d'individus en 3D
+scatterplot3d(scores$Dim.1, scores$Dim.2, scores$Dim.3, pch = 16, color = "blue",
+              xlab = "Axe 1", ylab = "Axe 2", zlab = "Axe 3")
+```
+
+```{r}
+data_set <- sf_point_climat_espece[,c(1,103:122)]
+prediction_set <- sf_point_france[,c(1,95:113)]
+colnames(prediction_set) <- colnames(data_set)
+prediction_set$type <- "prediction"
+data_set$type <- "data"
+combined_data <- rbind(data_set, prediction_set)
+combined_data <- st_drop_geometry(combined_data)
+res.pca <- PCA(combined_data[,2:20])
+```
+
+```{r}
+fviz_pca_ind(res.pca, geom.ind = "point", pointshape = 16, pointsize = 2, label = "none", col.ind = combined_data$type )
+```
+
+```{r}
+# Extraire les scores des individus sur les trois premiers axes
+scores <- as.data.frame(res.pca$ind$coord[, c(1, 2, 3)])
+
+# Graphe d'individus en 3D
+scatterplot3d(scores$Dim.1, scores$Dim.2, scores$Dim.3, pch = 16, color = "blue",
+              xlab = "Axe 1", ylab = "Axe 2", zlab = "Axe 3")
+```
+
+
+
+
+```{r}
+# Obtenir les coordonnées des individus dans les deux premiers axes
+ind_coords <- as.data.frame(res.pca$ind$coord[, 1:3])
+
+# Ajouter la variable "type" au dataframe des coordonnées
+ind_coords$type <- combined_data$type
+
+# Créer le graphe des individus avec les deux premiers axes
+ggplot() +
+  geom_point(data = ind_coords[ind_coords$type == "prediction", ], aes(x = Dim.1, y = Dim.2, color = "Predictions"), size = 2) +
+  geom_point(data = ind_coords[ind_coords$type == "data", ], aes(x = Dim.1, y = Dim.2, color = "Data"), size = 1) +
+  labs(color = "Type") +
+  scale_color_manual(values = c("Predictions" = "blue", "Data" = "red")) +
+  theme_minimal()
+```
+```{r}
+g1 <- ggplot() +
+  geom_point(data = ind_coords[ind_coords$type == "prediction", ], aes(x = Dim.2, y = Dim.3, color = "Predictions"), size = 2) +
+  geom_point(data = ind_coords[ind_coords$type == "data", ], aes(x = Dim.2, y = Dim.3, color = "Data"), size = 1) +
+  labs(color = "Type") +
+  scale_color_manual(values = c("Predictions" = "blue", "Data" = "red")) +
+  theme_minimal()
+
+g2 <- ggplot() +
+  geom_point(data = ind_coords[ind_coords$type == "prediction", ], aes(x = Dim.1, y = Dim.2, color = "Predictions"), size = 2) +
+  geom_point(data = ind_coords[ind_coords$type == "data", ], aes(x = Dim.1, y = Dim.2, color = "Data"), size = 1) +
+  labs(color = "Type") +
+  scale_color_manual(values = c("Predictions" = "blue", "Data" = "red")) +
+  theme_minimal()
+
+
+
+library(cowplot)
+plot_grid(g1, g2, nrow=2, labels=c('A', 'B'),rel_heights = c(4, 4)) 
+```
+
+```{r}
+library("factoextra")
+eig.val <- get_eigenvalue(res_pca_data)
+eig.val
+```
+```{r}
+var <- get_pca_var(res.pca)
+
+res.desc <- dimdesc(res.pca, axes = c(1:3), proba = 0.05)
+# Description de la dimension 1
+res.desc$Dim.1
+res.desc$Dim.2
+res.desc$Dim.3
+```
+
+```{r}
+library("corrplot")
+corrplot(var$cos2, is.corr=FALSE)
+```
+```{r}
+# Cos2 total des variables sur Dim.1 et Dim.2
+fviz_cos2(res.pca, choice = "var", axes = 1:3)
+```
+```{r}
+indices_colonnes <- c(11:94, 58,64,76)
+dataset <- final_espece_presente_data[,indices_colonnes]
+testset   <- dataset[-train_index,]
+trainset  <- dataset[train_index,]
+```
+
+```{r}
+xtrain <- as.data.frame(trainset[,3:49])
+ytrain <- as.data.frame(trainset[,1])
+xtest <- as.data.frame(testset[,3:49])
+ytest <- as.data.frame(testset[,1])
+names(ytest) <- 'presence'
+names(ytrain) <- 'presence'
+```
+
+
+```{r}
+rf.model <- randomForest(as.factor(trainset$presence)~.,data=(xtrain))
+rf.pred <- predict(rf.model,xtest)
+predictions <- predict(rf.model,xtest, type = "prob")
+```
+
+
+```{r}
+length(rf.pred)
+length(unlist(ytest$presence))
+varImp(rf.model)
+varImpPlot(rf.model)
+```
+
+
+```{r}
+cm <- confusionMatrix(as.factor(rf.pred), as.factor(unlist(ytest$presence)))
+print(cm)
+```
+
+```{r}
+
+roc_obj <- roc(ytest$presence, as.numeric(rf.pred))
+
+# Tracer la courbe ROC
+plot(roc_obj, main = "Courbe ROC", xlab = "Taux de faux positifs", ylab = "Taux de vrais positifs")
+
+# Calculer l'AUC
+auc_val <- auc(roc_obj)
+print(paste("AUC :", auc_val))
+
+```
+
+```{r}
+table(ytrain)
+ nmin <- sum(ytrain$presence == 1)
+ nmin
+```
+
+
+```{r}
+ctrl <- trainControl(method = "cv", number = 10, sampling = "down", p = 0.5)
+
+```
+
+```{r}
+nrow(ytrain)
+nrow(xtrain)
+```
+
+```{r}
+model <- train(as.factor(presence) ~ ., data = trainset, method = "ranger", ntree = 1)
+```
+
+```{r}
+# ça marche
+predictions <- predict(model, newdata = xtest)
+confusionMatrix(predictions, as.factor(ytest$presence))
+```
+
+```{r}
+roc_obj <- roc(ytest$presence, as.numeric(predictions))
+
+# Tracer la courbe ROC
+plot(roc_obj, main = "Courbe ROC", xlab = "Taux de faux positifs", ylab = "Taux de vrais positifs")
+
+# Calculer l'AUC
+auc_val <- auc(roc_obj)
+print(paste("AUC :", auc_val))
 ```
 

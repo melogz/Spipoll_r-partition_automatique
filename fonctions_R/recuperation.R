@@ -1,7 +1,6 @@
-### récupération des données ###
+ ### récupération des données ###
 
 library(dplyr)
-
 
 recuperation <- function(filename){
   resultat <- read.table(paste0(getwd(),filename),sep ="\t", header =TRUE )

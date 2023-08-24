@@ -196,10 +196,16 @@ df_t<- sf_points
 
 slice(buffers,1)
 
-st_bbox(slice(buffers,1))
+buffers_occupation <- st_buffer(sf_point_allier, dist = 1000)
+buffers_occupation$values <- raster::extract(clc, sf_point_allier, buffer =1000)
 
+st_bbox(slice(buffers_allier,1))
+st_crs(clc)== st_crs(buffers_allier)
 clc_test <- crop(clc,# raster to crop
-                  extent(st_bbox(slice(buffers,1)))) # extent on which to subset it has  to be a extent type object
+                  extent(st_bbox(slice(buffers_allier,2)))) # extent on which to subset it has  to be a extent type object
+plot(clc)
+plot(clc_test)
+plot(slice(buffers_occupation,2) , col = rgb(1, 0, 0, alpha = 0.5) ,add =T)
 length(clc_test)
 buffer_carre <- st_buffer(sf_points_laea, dist = 2000,endCapStyle="SQUARE")
 values <- raster::extract(clc, buffer_carre)
@@ -279,3 +285,83 @@ tmax <- tmin + 5
 prec <- c(0,2,10,30,80,160,80,20,40,60,20,0)
 class(prec)
 biovars(prec, tmin, tmax)
+
+
+
+
+#d'abord les températures moyennes 
+
+climate_data_2001_2010 <- extract_nc_value(first_year = 2001, 
+                                           last_year = 2010,
+                                           local_file = FALSE,
+                                           file_path = NULL,
+                                           sml_chunk = "1995-2010",
+                                           spatial_extent = fr_border,
+                                           clim_variable = "mean temp", # on récupère ici les valeurs moyennes
+                                           statistic = "mean",
+                                           grid_size = 0.25,
+                                           ecad_v = NULL,
+                                           write_raster = TRUE,
+                                           out = "raster_mean_temp_2001_2010.grd",
+                                           return_data = TRUE)
+
+# on le transforme en raster pour pouvoir localiser les points et extraire les valeurs d'interet 
+rbk_2001 = raster::brick("raster_mean_temp_2001_2010.grd")
+sf_point_climat <- st_transform(sf_climat, crs = st_crs(rbk_2001))
+st_crs(rbk_2001)== st_crs(sf_point_climat)
+
+# on récupère la moyenne de chaque année pour avoir le bon nombre de ligne
+annual_avg_temp_pnts = temporal_aggregate(x = rbk_2001,
+                                          y = sf_point_climat,
+                                          agg_function = "mean",
+                                          variable_name = "average temp",
+                                          time_step = "annual")
+
+# on récupère la moyenne de chaque mois 
+monthly_avg_temp_pnts = temporal_aggregate(x = rbk_2001,
+                                           y = sf_point_climat,
+                                           agg_function = "mean",
+                                           variable_name = "average temp",
+                                           time_step = "monthly")
+
+# on extrait pour les années 2011-2021 la température moyenne
+climate_data_2011_2021 <- extract_nc_value(first_year = 2011, 
+                                           last_year = 2021,
+                                           local_file = FALSE,
+                                           file_path = NULL,
+                                           sml_chunk = "2011-2021",
+                                           spatial_extent = fr_border,
+                                           clim_variable = "mean temp",
+                                           statistic = "mean",
+                                           grid_size = 0.25,
+                                           ecad_v = NULL,
+                                           write_raster = TRUE,
+                                           out = "raster_mean_temp_2011_2021.grd",
+                                           return_data = TRUE)
+
+
+rbk_2011 = raster::brick("raster_mean_temp_2011_2021.grd")
+format(object.size(climate_data_2011_2021), "MB")
+format(object.size(rbk_2011), "MB")
+st_crs(rbk_2011)== st_crs(sf_point_climat)
+
+# on récupère la moyenne de chaque année pour avoir le bon nombre de ligne
+annual_avg_temp_2011_pnts = temporal_aggregate(x = rbk_2011,
+                                               y = sf_point_climat,
+                                               agg_function = "mean",
+                                               variable_name = "average temp",
+                                               time_step = "annual")
+
+annual_avg_temp_pnts <-rbind(annual_avg_temp_pnts,annual_avg_temp_2011_pnts)
+annual_avg_temp_pnts <- arrange(annual_avg_temp_pnts, site)
+
+# annual mean per point
+monthly_avg_temp_pnts_2011 = temporal_aggregate(x = rbk_2011,
+                                                y = sf_point_climat,
+                                                agg_function = "mean",
+                                                variable_name = "average temp",
+                                                time_step = "monthly")
+
+monthly_avg_temp_pnts <-rbind(monthly_avg_temp_pnts,monthly_avg_temp_pnts_2011)
+monthly_avg_temp_pnts <- arrange(monthly_avg_temp_pnts, site)
+grille<- read.table(paste0(getwd(),"/data_entree/data_SPIPOLL/grille_prediction_2km.txt"),sep ="", header =TRUE )

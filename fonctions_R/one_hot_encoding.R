@@ -22,13 +22,25 @@ new_one_hot <-  function(df,nombre_de_colonne,carte_buffers,taille_buffer ){
   noms_colonnes <- paste("colonne", 1:nombre_de_colonne,"_",taille_buffer, sep = "")
   new_df <- data.frame(matrix(0,nrow= nrow(df),ncol=nombre_de_colonne))
   names(new_df) <- noms_colonnes
-  df_1 <- cbind(df,new_df)
   for (i in (1:nrow(carte_buffers))){
     for (j in (1:length(unique(carte_buffers$values[[i]])))){
-      df_1[[paste("colonne", unique(carte_buffers$values[[i]])[[j]],"_",taille_buffer, sep = "")]][i] = table(carte_buffers$values[[i]])[[j]]*100/length(carte_buffers$values[[i]])
+      new_df[[paste("colonne", unique(carte_buffers$values[[i]])[[j]],"_",taille_buffer, sep = "")]][i] = table(carte_buffers$values[[i]])[[j]]*100/length(carte_buffers$values[[i]])
     }
   }
-  return(df_1)
+  return(new_df)
+}
+
+new_one_hot_raster <-  function(df,nombre_de_colonne,carte_buffers,taille_buffer ){
+  noms_colonnes <- paste("colonne", 1:nombre_de_colonne,"_",taille_buffer, sep = "")
+  new_df <- data.frame(matrix(0,nrow= nrow(df),ncol=nombre_de_colonne))
+  names(new_df) <- noms_colonnes
+  for (i in (1:nrow(carte_buffers))){
+    buffer <- slice(carte_buffers,i)
+    counts <- table(buffer$values)
+   proportions <- counts / sum(counts)
+    new_df[i,paste0("colonne",as.numeric(names(proportions)),"_",taille_buffer, sep = "")] <- proportions
+  }
+  return(new_df)
 }
 
 new_one_hot_vector<- function (df,nombre_de_colonne,carte_buffers,taille_buffer ){
@@ -37,13 +49,12 @@ new_one_hot_vector<- function (df,nombre_de_colonne,carte_buffers,taille_buffer 
     nom_colonne <- paste("colonne", i,"_",taille_buffer, sep = "")
     df[[nom_colonne]] <- 0
   }
-  for (i in (unique(carte_buffers$id))){
+  for (i in (unique(carte_buffers$id))){ 
     carte_subset <- subset(carte_buffers, carte_buffers$id == i)
-    aire <- sum(carte_subset$AREA_HA)
     for (k in (1:nrow(carte_subset))){
-      df[[paste("colonne",carte_subset$CODE_12[k],"_",taille_buffer, sep = "")]][i] = 100*carte_subset$AREA_HA[k]/aire
+      df[[paste("colonne",carte_subset$CODE_12[k],"_",taille_buffer, sep = "")]][df$id == i] = df[[paste("colonne",carte_subset$CODE_12[k],"_",taille_buffer, sep = "")]][df$id ==i]+as.numeric(carte_subset$proportion[k])
     }
-  } 
+  }
   return(df)
 }
 
@@ -62,12 +73,25 @@ simplification <- function (df,nombre_de_colonne){
   return(df)
 }
 
-#test <- data.frame(sf_collection2)
-#noms= c(111,112,121,122,123,124,131,132,133,141,142,211,212,213,221,222,223,231,241,242,243,244,311,312,313,321,322,323,324,331,332,333,334,335,411,412,421,422,423,511,512,521,522,523)
-#for (i in noms) {
- # nom_colonne <- paste("colonne", i,"_",2000, sep = "")
-#  test[[nom_colonne]] <- 0
-#}
+test <- sf_points[1,]
+noms= c(111,112,121,122,123,124,131,132,133,141,142,211,212,213,221,222,223,231,241,242,243,244,311,312,313,321,322,323,324,331,332,333,334,335,411,412,421,422,423,511,512,521,522,523)
+for (i in noms) {
+  nom_colonne <- paste("colonne", i,"_",1000, sep = "")
+  test[[nom_colonne]] <- 0
+}
+for (i in (unique(buffers_2000_vector$id))){
+  carte_subset <- subset(buffers_2000_vector, buffers_2000_vector$id == i)
+  for (k in (1:nrow(carte_subset))){
+    test[[paste("colonne",carte_subset$CODE_12[k],"_",1000, sep = "")]][ test$id == i] = test[[paste("colonne",carte_subset$CODE_12[k],"_",1000, sep = "")]][ test$id == i]+as.numeric(carte_subset$proportion[k])
+  }
+}
+
+carte_subset <- subset(buffers_2000_vector, buffers_2000_vector$id == "pred_1")
+for (k in (1:nrow(carte_subset))){
+  test[[paste("colonne",carte_subset$CODE_12[k],"_",1000, sep = "")]][ test$id == i] = test[[paste("colonne",carte_subset$CODE_12[k],"_",1000, sep = "")]][ test$id == i]+as.numeric(carte_subset$proportion[k])
+}
+
+ 
 #old_hot_collection_2000_raster <- one_hot(sf_collection2,44,buffers_2000)  
 #one_hot_collection_2000_raster <- new_one_hot(sf_collection2,44,buffers_2000,2000)
 #one_hot_collection_2000_vector <- new_one_hot_vector(sf_collection2,44,buffers_2000_vector,2000)
@@ -95,3 +119,5 @@ simplification <- function (df,nombre_de_colonne){
 #    df_1[[paste("colonne", carte_subset$CODE_12[k], sep = "")]][i] = 100*carte_subset$AREA_HA[k]/aire + df_1[[paste("colonne", carte_subset$CODE_12[k], sep = "")]][i]
 #  }
 #} 
+#test <- sf_collection[1,]
+#one_hot_collection_2000_vector <- new_one_hot_vector(test,44,buffers_2000_vector,2000)
